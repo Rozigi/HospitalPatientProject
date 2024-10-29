@@ -1,0 +1,580 @@
+﻿
+
+-- =============================================
+-- Author:			Rekiat Ozigi
+-- Create date:		2024/09/12
+-- Description:		HospitalPatientProject
+-- Version:			0.1, 0.2, 0.3
+-- Revision Date:	2024/09/12, 2024/09/21, 2024/09/29
+-- =============================================
+
+
+/**
+----Please download the csv file here: 
+https://synthea.mitre.org/downloads 
+2. Load All The Files To SQL Serve Dev Environment
+INSTRUCTION: Use The File Names As Your File Names
+**/
+
+
+CREATE TABLE Allegies (
+    [START] varchar(50),
+    [STOP] varchar(50),
+    [PATIENT] varchar(50),
+    [ENCOUNTER] varchar(50),
+    [CODE] varchar(50),
+    [SYSTEM] varchar(50),
+    [DESCRIPTION] varchar(50),
+    [TYPE] varchar(50),
+    [CATEGORY] varchar(50),
+    [REACTION1] varchar(50),
+    [DESCRIPTION1] varchar(50),
+    [SEVERITY1] varchar(50),
+    [REACTION2] varchar(50),
+    [DESCRIPTION2] varchar(50),
+    [SEVERITY2] varchar(50)
+)
+
+SELECT *
+FROM Allegies
+
+use dev
+
+--loading care plan csv file into dev
+drop table if exists careplans
+
+
+--create table to isert data 
+create table Stg_CarePlans
+(
+Id varchar (200) null, 
+[START] varchar (100)null,	
+[STOP] Varchar (100)null,	
+PATIENT	varchar (200) null,
+ENCOUNTER varchar (200) null,
+CODE varchar (200) null,
+[DESCRIPTION]	varchar (200) null, 
+REASONCODE	varchar (200) null,
+REASONDESCRIPTION varchar(500) null
+)
+ --bulk insert
+ bulk insert Stg_CarePlans
+ from 'C:\Users\User\OneDrive\Documents\SQL TRAINING\ETL Training 1\INBOUND\HospitalPatientProject\careplans.csv'
+with
+(format='csv', firstrow = 2,
+fieldterminator=',',
+rowterminator='0x0a'
+)
+
+SELECT *
+FROM[dbo].[CarePlans]
+
+
+use dev
+--loading care plan csv file into dev
+drop table if exists Stg_Claims1
+
+--create table to isert data 
+CREATE TABLE [Stg_Claims1] (
+    [Id] VARCHAR(250) NULL,
+    [PATIENTID] VARCHAR(250) NULL,
+    [PROVIDERID] VARCHAR(250) NULL,
+    [PRIMARYPATIENTINSURANCEID] VARCHAR(250) NULL,
+    [SECONDARYPATIENTINSURANCEID] VARCHAR(250) NULL,
+    [DEPARTMENTID] VARCHAR(250) NULL,
+    [PATIENTDEPARTMENTID] VARCHAR(250) NULL,
+    [DIAGNOSIS1] VARCHAR(250) NULL,
+    [DIAGNOSIS2] VARCHAR(250) NULL,
+    [DIAGNOSIS3] VARCHAR(250) NULL,
+    [DIAGNOSIS4] VARCHAR(250) NULL,
+    [DIAGNOSIS5] VARCHAR(250) NULL,
+    [DIAGNOSIS6] VARCHAR(250) NULL,
+    [DIAGNOSIS7] VARCHAR(250) NULL,
+    [DIAGNOSIS8] VARCHAR(250) NULL,
+    [REFERRINGPROVIDERID] VARCHAR(250) NULL,
+    [APPOINTMENTID] VARCHAR(250) NULL,
+    [CURRENTILLNESSDATE] VARCHAR(250) NULL,
+    [SERVICEDATE] VARCHAR(250) NULL,
+    [SUPERVISINGPROVIDERID] VARCHAR(250) NULL,
+    [STATUS1] VARCHAR(250) NULL,
+    [STATUS2] VARCHAR(250) NULL,
+    [STATUSP] VARCHAR(250) NULL,
+    [OUTSTANDING1] VARCHAR(250) NULL,
+    [OUTSTANDING2] VARCHAR(250) NULL,
+    [OUTSTANDINGP] VARCHAR(250) NULL,
+    [LASTBILLEDDATE1] VARCHAR(250) NULL,
+    [LASTBILLEDDATE2] VARCHAR(250) NULL,
+    [LASTBILLEDDATEP] VARCHAR(250) NULL,
+    [HEALTHCARECLAIMTYPEID1] VARCHAR(250) NULL,
+    [HEALTHCARECLAIMTYPEID2] VARCHAR(250) NULL,
+   
+)
+  --bulk insert
+ bulk insert Stg_Claims1
+ from 'C:\Users\User\Documents\SQLTraining\INBOUND\HospitalPatientProject\claims.csv'
+with
+(format='csv', firstrow = 2,
+fieldterminator=',',
+rowterminator='0x0a'
+)
+SELECT *
+FROM Stg_Claims1
+
+SELECT *
+FROM StgClaims
+
+
+SELECT *
+FROM Stg_ClaimsTransaction
+
+
+SELECT *
+FROM Stg_Condition
+
+DROP TABLE IF Exists Stg_devices
+SELECT *
+FROM Stg_devices
+SELECT *
+FROM Stg_Encounters
+
+SELECT *
+FROM Stg_Imagings_Studies
+
+SELECT *
+FROM Stg_Immunizations
+
+
+SELECT *
+FROM Stg_payer_transitions
+
+SELECT *
+FROM Stg_Payers
+
+SELECT *
+FROM Stg_Procedures
+
+SELECT *
+FROM Stg_Providers
+
+SELECT *
+FROM Stg_Supplies
+
+SELECT *
+FROM Stg_payer_transitions
+
+use dev
+--loading [Stg_Supplies1] csv file into dev
+drop table if exists [Stg_Supplies1]
+--create table to isert data 
+CREATE TABLE [Stg_Supplies1] (
+    [DATE] VARCHAR (250) NULL,
+    [PATIENT] VARCHAR (250) NULL,
+    [ENCOUNTER] VARCHAR (250) NULL,
+    [CODE] VARCHAR (250) NULL,
+    [DESCRIPTION] VARCHAR (250) NULL,
+    [QUANTITY] VARCHAR (250) NULL
+    )
+--bulk insert
+ bulk insert [Stg_Supplies1]
+ from 'C:\Users\User\Documents\SQLTraining\INBOUND\HospitalPatientProject\supplies.csv'
+with
+(format='csv', firstrow = 2,
+fieldterminator=',',
+rowterminator='0x0a'
+)
+
+SELECT *
+FROM [dbo].[Stg_Claims1]
+
+
+SELECT *
+FROM [dbo].[Stg_ClaimsTransaction]
+
+
+
+SELECT *
+FROM [dbo].[Stg_CarePlans]
+WHERE DESCRIPTION LIKE 'Diabetes%'
+
+SELECT COUNT (*) AS TotalDiabetesPatients
+FROM [dbo].[Stg_CarePlans]
+WHERE DESCRIPTION LIKE 'Diabetes%'
+
+/*
+Hospital project questions
+
+We have 9 tables — Patients, Encounters, Conditions, Immunizations, Procedures, Observations, Allergies, Careplans & Medications.
+Now to start answering the questions.
+* 		Write a query that does the following:
+* 		1. Lists out number of patients in descending order
+* 		Does not include Quincy
+* 		Must have at least 20 patients from that city
+
+2.To find out the patients with the highest number of visits
+
+3. To find out the Top 10 patients with the most visits to the hospital 
+4. ?To find out the number of times patients from each city visited the hospital.
+5. ?To find out the cities with up to 50 counts of emergency cases.
+6. ?Now to find out the number of patients from Boston who came in 2020.
+7. ?To find out the top recurring conditions.
+8. ?To find out the month with the highest number of ambulatory cases since 2010.
+9. ?To find out the month with the highest number of emergency cases since 2010.
+10. ?Now to find out the Top 15 years with the most immunizations.
+
+**/
+
+SELECT *
+ FROM [dbo].[Stg_patients]
+
+ --1, Lists out number of patients in each city in descending order
+select city, count (*) as 'Number of patients'
+from stg_patients
+group by city 
+order by city desc
+
+
+ 
+--2, list city that only starts with W in the patients table (to make w the first lette use %)(where city like 'W%')
+select city, count (*) as 'Number of patients'
+from stg_patients
+where city like 'W%'
+group by city 
+order by city desc
+
+----3, list of patients that are more than one city (having count (*)> )
+
+select city, count (*) as 'Number of patients'
+from stg_patients
+where city like 'W%'
+group by city 
+having count (*)> 1
+order by city desc
+
+--patient with the highest number of visit
+
+SELECT *
+ FROM [dbo].[Stg_patients]
+
+ SELECT *
+ FROM [dbo].[Stg_Encounters]
+
+SELECT B.id, B.City, COUNT (A.Patient) AS Visits
+FROM [DEV].[dbo].[stg_Patients] AS B
+JOIN [DEV].[dbo].[stg_Encounters] AS A
+ON B.id = A.Patient
+GROUP BY B.id, B.City
+ORDER BY Visits DESC
+
+
+  --return top 10
+
+  select top 10 *
+from
+(
+	select b.id, b.city, count (a.patient) as visits
+	from [DEV].[dbo].[stg_Patients] as B
+	join [DEV].[dbo].[stg_Encounters] as A
+	on b.id = a.patient
+	group by b.id, b.city
+) 
+  as final
+  order by visits desc
+
+  --how the highest 
+select top 1 *
+from
+(
+select b.id, b.city, count (a.patient) as visits
+from [DEV].[dbo].[stg_Patients] as B
+join [DEV].[dbo].[stg_Encounters] as A
+on b.id = a.patient
+group by b.id, b.city
+		  
+) as final
+order by visits desc
+
+
+
+----4. To find out the cities with up to 50 counts of emergency cases.
+
+SELECT a.city, COUNT(*) AS citycount
+FROM [DEV].[dbo].[stg_Patients] AS a
+JOIN [DEV].[dbo].[stg_Encounters] AS b 
+ON a.id = b.patient 
+WHERE b.encounterclass = 'emergency'
+GROUP BY a.city
+HAVING COUNT(*) <= 50
+ORDER BY citycount DESC;
+
+---5. To find out the number of patients from Boston who came in 2020.
+ 
+select count (*) as TotalPatientConditionCount
+from [DEV].[dbo].[stg_Patients] as a
+join [DEV].[dbo].[stg_Encounters] as b
+on a.id = b.patient
+where a.city = 'Boston'
+  and year(b.start) = 2020
+ 
+ 
+---5. To find out the number of patients from Boston who came in 2020.
+ 
+select count (*) as patientcount
+from [DEV].[dbo].[stg_Patients] as a
+join [DEV].[dbo].[stg_Encounters] as b
+on a.id = b.patient
+where a.city = 'Boston'
+  and year(b.start) = 2020
+ 
+ 
+--- 6) To find out the top recurring conditions.
+
+select [description], count(*) as totaloccurence
+from stg_encounters  
+group by [description]
+having count(*) > 1
+order by totaloccurence desc
+ 
+ 
+--**7. To find out the month with the highest number of ambulatory cases since 2010.
+ 
+  SELECT encounterclass, Month (Start) As Months, count(*) as 'Number of ambulatory case'
+  FROM [DEV].[dbo].[stg_Encounters]
+  WHERE encounterclass = 'ambulatory'
+  AND start >= '2010'
+  GROUP BY encounterclass, Month (Start)
+  ORDER BY Month (Start) Desc
+
+
+--Same Question above to month and year
+   
+SELECT encounterclass, Format (Start,'yyyy-mm') As Months, count(*) as 'Number of ambulatory case'
+FROM [DEV].[dbo].[stg_Encounters]
+WHERE encounterclass = 'ambulatory'
+AND start >= '2010'
+GROUP BY encounterclass, Month (Start)
+ORDER BY Month (Start) Desc
+
+
+SELECT GETDATE()
+SELECT FORMAT (GETDATE(), 'yyyymm') AS YearMonth
+SELECT FORMAT (GETDATE(), 'yyyymmdd') AS YearMonth
+
+SELECT Format(TRY_CONVERT (DATE, GETDATE()), 'yyyymm') AS CurrentDate
+SELECT Format(TRY_CONVERT (DATE, GETDATE()), 'yyyymm') AS CurrentDate
+SELECT Format(TRY_CONVERT (DATE, GETDATE()), 'yyyymm') AS CurrentDate
+
+----8. ?To find out the month with the highest number of emergency cases since 2010.
+
+
+
+-----CORRECTION POSTED BY MR SUKANMMI
+
+Assignment is to learn about SQL joins regarding our healthcare project. I will discuss further in depth in our next session: 
+
+Hospital project questions and answers 1-10
+
+--QUESTION 1: Write a query that does the following: Lists out number of patients in descending order,Does not include city Quincy,
+--			  Must have at least 2 patients from that city
+SELECT DISTINCT 
+CITY, 
+COUNT(ID) AS NumberOfPatients
+FROM stg_patients
+WHERE CITY <> 'QUINCY'
+GROUP BY CITY
+HAVING COUNT(ID) > 1
+ORDER BY CITY DESC
+
+
+
+--QUESTION 2: find out the patients with the highest number of visits
+WITH VISITS AS
+(
+SELECT DISTINCT 
+B.CITY,
+A.PATIENT,
+B.ID,
+COUNT(B.ID) AS NUMBEROFVISITS
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+GROUP BY B.CITY,A.PATIENT,B.ID
+)
+
+SELECT *
+FROM VISITS
+WHERE NUMBEROFVISITS =
+(
+SELECT 
+MAX(NUMBEROFVISITS) AS MAXVISITS
+FROM VISITS
+);
+
+OR
+
+WITH VISITS AS
+(
+SELECT  
+B.CITY,
+A.PATIENT,
+B.ID,
+COUNT(B.ID) AS NUMBEROFVISITS
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+GROUP BY 
+B.CITY,
+A.PATIENT,
+B.ID
+)
+
+SELECT 
+TOP 1 *
+FROM VISITS
+ORDER BY NUMBEROFVISITS DESC;
+
+--QUESTION 3: To find out the Top 10 patients with the most visits to the hospital
+WITH VISITS AS
+(
+SELECT  
+B.CITY,
+A.PATIENT,
+B.ID,
+COUNT(B.ID) AS NUMBEROFVISITS
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+GROUP BY 
+B.CITY,
+A.PATIENT,
+B.ID
+)
+
+SELECT 
+TOP 10 *
+FROM VISITS
+ORDER BY NUMBEROFVISITS DESC;
+
+⁠-- QUESTION 4: To find out the number of times patients from each city visited the hospital
+SELECT DISTINCT
+B.CITY,
+A.PATIENT,
+B.ID,
+COUNT(B.ID) AS NUMBEROFVISITS
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+GROUP BY 
+B.CITY,
+A.PATIENT,
+B.ID
+ORDER BY NUMBEROFVISITS DESC;
+
+--QUESTION 5: ⁠To find out the cities with up to 50 counts of emergency cases.
+SELECT DISTINCT
+B.CITY,
+A.ENCOUNTERCLASS,
+COUNT(ENCOUNTERCLASS) AS COUNTSOFEMERGENCYCASES
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+WHERE ENCOUNTERCLASS = 'EMERGENCY'
+GROUP BY 
+B.CITY,
+A.ENCOUNTERCLASS
+HAVING COUNT(ENCOUNTERCLASS) >= 50
+ORDER BY COUNTSOFEMERGENCYCASES DESC
+;⁠
+
+SELECT *
+FROM [dbo].[Stg_Encounters]
+
+--QUESTION 6: ⁠Now to find out the number of patients from Boston who came in 2020
+SELECT 
+B.CITY,
+COUNT(A.PATIENT) AS NUMBEROFPATIENTS
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B  
+ON A.PATIENT=B.ID
+WHERE B.CITY = 'BOSTON' 
+AND START LIKE '2020%'
+GROUP BY 
+B.CITY;
+
+-- QUESTION 7: To find out the top recurring conditions.---This is answered as CTE
+WITH RECCURRINGCONDITIONS AS
+(
+SELECT DISTINCT 
+A.DESCRIPTION,
+COUNT(*) AS NUMBEROFRECURRENCE
+FROM [dbo].[Stg_Condition] A
+--	JOIN [dbo].[Stg_patients] B 
+--	ON A.PATIENT=B.ID
+GROUP BY A.DESCRIPTION
+)
+SELECT 
+TOP 5 DESCRIPTION,
+NUMBEROFRECURRENCE
+FROM RECCURRINGCONDITIONS
+ORDER BY NUMBEROFRECURRENCE DESC;
+
+
+--QUESTION 8: To find out the month with the highest number of ambulatory cases since 2010
+SELECT 
+TOP 1 NUMBEROFAMBULATORYCASES,
+YEAR,
+MONTH
+FROM
+(
+SELECT DISTINCT
+DATEPART(YEAR, A.START) AS YEAR,
+DATEPART(MONTH, A.START) AS MONTH,
+COUNT(A.ENCOUNTERCLASS) AS NUMBEROFAMBULATORYCASES
+FROM [dbo].[Stg_Encounters] A
+JOIN[dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+WHERE ENCOUNTERCLASS = 'AMBULATORY'
+GROUP BY 
+DATEPART(YEAR, A.START), 
+DATEPART(MONTH, A.START)
+HAVING DATEPART(YEAR, A.START) >= 2010
+) X
+ORDER BY NUMBEROFAMBULATORYCASES DESC
+
+--QUESTION 9: ⁠To find out the month with the highest number of emergency cases since 2010.
+
+SELECT 
+TOP 1 NUMBEROFEMERGENCYCASES,
+YEAR,
+MONTH
+FROM
+(
+SELECT DISTINCT
+DATEPART(YEAR, A.START) AS YEAR,
+DATEPART(MONTH, A.START) AS MONTH,
+COUNT(A.ENCOUNTERCLASS) AS NUMBEROFEMERGENCYCASES
+FROM [dbo].[Stg_Encounters] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+WHERE ENCOUNTERCLASS = 'EMERGENCY'
+GROUP BY 
+DATEPART(YEAR, A.START), 
+DATEPART(MONTH, A.START)
+HAVING DATEPART(YEAR, A.START) >= 2010
+) X
+ORDER BY NUMBEROFEMERGENCYCASES DESC
+
+ --QUESTION 10: ⁠Now to find out the top 15 years with the most immunizations.
+SELECT 
+TOP 15 NUMBEROFIMMUNIZATIONS,
+YEAR
+FROM
+(
+SELECT DISTINCT
+DATEPART(YEAR, A.DATE) AS YEAR,
+COUNT(A.ENCOUNTER) AS NUMBEROFIMMUNIZATIONS
+FROM [dbo].[Stg_Immunizations] A
+JOIN [dbo].[Stg_patients] B 
+ON A.PATIENT=B.ID
+GROUP BY 
+DATEPART(YEAR, A.DATE) )X
+ORDER BY NUMBEROFIMMUNIZATIONS DESC;
